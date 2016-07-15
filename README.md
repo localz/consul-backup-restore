@@ -12,7 +12,7 @@ npm install consul-backup-restore
 ### Initialise
 ``` javascript
 var ConsulBackupRestore = require('consul-backup-restore');
-var cbr = new ConsulBackupRestore({host: 'localhost'});
+var cbr = new ConsulBackupRestore({Host: 'localhost'});
 ```
 
 ### Backup
@@ -21,9 +21,13 @@ cbr.backup(
     {prefix: 'serviceName'},
     function(err) {
         if (err) throw err;
-    } 
+    }
 )
 ```
+
+Parameters
+prefix
+s3_bucket_name
 
 ### Restore
 ``` javascript

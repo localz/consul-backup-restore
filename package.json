@@ -19,9 +19,15 @@
     "restore"
   ],
   "author": "Nathan Malishev",
+  "contributors": "Mark Gandy",
   "license": "MIT",
   "bugs": {
     "url": "https://github.com/localz/consul-backup-restore/issues"
   },
-  "homepage": "https://github.com/localz/consul-backup-restore#readme"
+  "homepage": "https://github.com/localz/consul-backup-restore#readme",
+  "dependencies": {
+    "async": "^2.0.0",
+    "aws-sdk": "^2.4.7",
+    "consul": "^0.25.0"
+  }
 }
