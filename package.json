@@ -1,0 +1,27 @@
+{
+  "name": "consul-backup-restore",
+  "version": "0.0.1",
+  "description": "Library to backup and restore consul key values",
+  "main": "src/index.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/localz/consul-backup-restore.git"
+  },
+  "keywords": [
+    "consul",
+    "backup",
+    "restore"
+  ],
+  "author": "Nathan Malishev",
+  "license": "MIT",
+  "bugs": {
+    "url": "https://github.com/localz/consul-backup-restore/issues"
+  },
+  "homepage": "https://github.com/localz/consul-backup-restore#readme"
+}
