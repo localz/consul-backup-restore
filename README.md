@@ -26,8 +26,9 @@ cbr.backup(
 ```
 
 Parameters
-prefix
-s3_bucket_name
+prefix - if left out will back up all key/value pairs
+s3_bucket_name - must be included if not using local flag
+local -> local in stead of s3. true or 'true'
 
 ### Restore
 ``` javascript

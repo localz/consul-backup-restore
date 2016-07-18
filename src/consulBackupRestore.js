@@ -1,12 +1,11 @@
 const overrideKey       = require('./helpers').overrideKey
 const setConsulKeyValue = require('./helpers').setConsulKeyValue
 const getConsulKey      = require('./helpers').getConsulKey
-const getKeyValue       = require('./helpers').getKeyValue
+const helpers      = require('./helpers')
 
 
 const consul = require('consul')
 const async  = require('async')
-const AWS    = require('aws-sdk')
 const fs     = require('fs')
 
 
@@ -17,50 +16,37 @@ function ConsulBackupRestore(options) {
         Host:options.Host,
         Port:options.Port,
     })
-    console.log(options)
 }
 
 ConsulBackupRestore.prototype.backup = function (options, callback) {
+
+    // parse options & santizes
+    this.options = helpers.parseOptions(options, (err) => {
+        if(err) callback(err)
+    })
+
     console.log('backing up...');
-
-    //TODO: check options for possible options
-
     // Find all keys then iterate, results is array of keys
     this.consulInstance.kv.keys(options.prefix, (err,keys) => {
       if(err) throw err
       // map over array of keys
-      async.map(keys, getKeyValue, (err, result) =>{
+      async.map(keys, helpers.getKeyValue, (err, result) =>{
         if(err) throw err
 
-        if (result.length === 0) return console.error('No keys found to backup!')
+        const writeData        = helpers.parseKeys(result)
+        const backup_file_name = helpers.createFileName(options.prefix)
 
-        let output = ''
-        result.map((e)=>{
-          output += JSON.stringify(e) + '\n'
-        })
-
-         // -------------- S3
-        const date        = new Date();
-        //just added seconds to the end to avoid duplicates -> doesn't make too much logical sense though..
-        const date_ext    = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}_${date.getSeconds()}`
-        const backup_file = `consul_kv_backup_${options.prefix}_${date_ext}`
-
-
-        if(options.s3 === undefined || options.s3){
-            var s3 = new AWS.S3({params:{Bucket: options.s3_bucket_name}})
-            s3.upload({Body:output, Key: backup_file})
-              .on('httpUploadProgress', function(evt) { console.log(evt); })
-              .send(function(err, data) { console.log(err, data) });
+        if(options.local === true || options.local === 'true'){
+            helpers.writeLocalFile(backup_file_name, writeData, (err, result) => {
+                if(err) callback(err)
+                console.log(result)
+            })
         }else{
-            fs.writeFile(options.file_name, output, (err) => {
-              if(err) throw err
-
-              console.log('file saved')
+            helpers.writeS3File(options.s3_bucket_name, backup_file_name, writeData, (err, result) =>{
+                if(err) callback(err)
+                console.log(result)
             })
         }
-
-
-
 
         })
     })
