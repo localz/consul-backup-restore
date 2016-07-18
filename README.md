@@ -1,6 +1,8 @@
 # consul-backup-restore
+consul-backup-restore is a way of easily restoring and backing up key/value pairs from consul.
+Works with s3 or locally. Does not override existing keys, but can be overriden. 
 
-This is a work in progress - come back soon to see it finished!
+
 
 ### Install
 ```
@@ -12,10 +14,10 @@ npm install consul-backup-restore
 ### Initialise
 ``` javascript
 var ConsulBackupRestore = require('consul-backup-restore');
-var cbr = new ConsulBackupRestore({Host: 'localhost'});
+var cbr = new ConsulBackupRestore({Host: 'localhost', Port:8500});
 ```
 
-### Backup
+### Backup - cbr.backup([options], callback)
 ``` javascript
 cbr.backup(
     {prefix: 'serviceName'},
@@ -25,12 +27,12 @@ cbr.backup(
 )
 ```
 
-Parameters
-prefix - if left out will back up all key/value pairs
-s3_bucket_name - must be included if not using local flag
-local -> local in stead of s3. true or 'true'
+Options
+* prefix : Consul prefix used to back up keys from consul. If left blank will back up all k/v
+* s3_bucket_name: s3_bucket_name you wish to connect to. Must be used if the local flag is not
+* local: use true or 'true' to back up to your local directory
 
-### Restore
+### Restore - cbr.restore([options], callback)
 ``` javascript
 cbr.restore(
     {prefix: 'serviceName', overwrite: true, file_name:''},
@@ -39,3 +41,9 @@ cbr.restore(
     }    
 )
 ```
+
+Options
+* s3_bucket_name: s3_bucket_name you wish to connect to. Must be used if the local flag is not
+* local: use true or 'true' to restore from your local directory
+* file_name: name of the file you wish to back up
+* override: use true or 'true' to override existing keys in consul
