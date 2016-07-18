@@ -98,7 +98,7 @@ exports.writeS3File = function (s3_bucket_name, backup_file_name, writeData, cal
 exports.parseKeys = function (keys) {
   if (keys.length === 0) return console.error('No keys found to backup!')
 
-  let writeData = ''
+  var writeData = ''
   keys.map((e)=>{
     writeData += JSON.stringify(e) + '\n'
   })
@@ -108,7 +108,7 @@ exports.parseKeys = function (keys) {
 
 exports.consulBackup = function (raw_data, override, callback) {
 
-       let key_values = raw_data.toString('utf-8').split('\n')
+       var key_values = raw_data.toString('utf-8').split('\n')
        if (key_values.last === undefined){
            key_values.pop() // pop last value as its a newline
          }
