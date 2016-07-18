@@ -1,6 +1,6 @@
 # consul-backup-restore
 consul-backup-restore is a way of easily restoring and backing up key/value pairs from consul.
-Works with s3 or locally. Does not override existing keys, but can be overriden. 
+Works with s3 or locally. Does not override existing keys, but can be overriden.
 
 
 
@@ -30,7 +30,7 @@ cbr.backup(
 Options
 * prefix : Consul prefix used to back up keys from consul. If left blank will back up all k/v
 * s3_bucket_name: s3_bucket_name you wish to connect to. Must be used if the local flag is not
-* local: use true or 'true' to back up to your local directory
+* local: use true or 'true' to back up to your local directory. *local will take precedence s3*
 
 ### Restore - cbr.restore([options], callback)
 ``` javascript

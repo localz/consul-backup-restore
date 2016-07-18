@@ -10,7 +10,7 @@ const fs     = require('fs')
 
 function ConsulBackupRestore(options) {
     this.options = options || {};
-    //TODO: look at consul and see what other configs we need to pass in
+    //TODO: consul by default can take in a lot more items
     this.consulInstance = consul({
         Host:options.Host,
         Port:options.Port,
@@ -74,7 +74,7 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
           if (err) callback(err)
           helpers.consulBackup(data.Body, override, (err,result) => {
               if(err) callback(err)
-              console.log(result)
+              if(result) console.log(result)
           })
 
         })
