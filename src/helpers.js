@@ -58,21 +58,15 @@ exports.parseOptions = function(function_call, options, callback){
     if(!options.override || (typeof options.override !== 'boolean')){
       options.override = false
     }
-    if(!options.file_name){
+    if(!options.path_to_file){
       console.log(`No ${function_call} occured`)
-      console.log(`Usage: cbr.${function_call}({file_name:\'file_name\', s3_bucket_name:\'bucket_name\'}`)
-      callback(Error('Incorrect usage - file_name needed for restore'))
+      console.log(`Usage: cbr.${function_call}({path_to_file:\'path_to_file\', s3_bucket_name:\'bucket_name\'}`)
+      callback(Error('Incorrect usage - path_to_file needed for restore'))
     }
   }
 
-  if(!options.s3_bucket_name && (options.local === false || options.local === 'false' || !options.local) ){
-      console.log(`No ${function_call} occured`)
-      console.log(`Usage: cbr.${function_call}({prefix:\'prefixname\', s3_bucket_name:\'bucket_name\'}`)
-      callback(Error('Incorrect Usage'))
-  }
   // can backup/restore without prefix, this will back every key
   if(!options.prefix) options.prefix = ''
-  if(options.local === 'true') options.local = true
   return options
 
 }
@@ -116,7 +110,7 @@ exports.consulBackup = function (raw_data, override, callback) {
 
        let key_values = raw_data.toString('utf-8').split('\n')
        if (key_values.last === undefined){
-           key_values.pop()
+           key_values.pop() // pop last value as its a newline
          }
        key_values.map((kv)=> {
          const key = JSON.parse(kv).Key

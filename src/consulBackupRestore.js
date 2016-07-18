@@ -24,7 +24,7 @@ ConsulBackupRestore.prototype.backup = function (options, callback) {
         if(err) callback(err)
     })
     console.log('backing up...');
-    const { prefix, s3_bucket_name, local } = options
+    const { prefix, s3_bucket_name } = options
     // Find all keys then iterate, results is array of keys
     this.consulInstance.kv.keys(prefix, (err,keys) => {
       if(err) throw err
@@ -35,13 +35,13 @@ ConsulBackupRestore.prototype.backup = function (options, callback) {
         const writeData        = helpers.parseKeys(result)
         const backup_file_name = helpers.createFileName(prefix)
 
-        if(local){
-            helpers.writeLocalFile(backup_file_name, writeData, (err, result) => {
+        if(s3_bucket_name){
+            helpers.writeS3File(s3_bucket_name, backup_file_name, writeData, (err, result) =>{
                 if(err) callback(err)
                 console.log(result)
             })
         }else{
-            helpers.writeS3File(s3_bucket_name, backup_file_name, writeData, (err, result) =>{
+            helpers.writeLocalFile(backup_file_name, writeData, (err, result) => {
                 if(err) callback(err)
                 console.log(result)
             })
@@ -59,24 +59,23 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
     })
     console.log('restoring...');
 
-    const {s3_bucket_name, file_name, override} = options
-    if(options.local){
-        fs.readFile(file_name, 'utf8', (err, data)=>{
-            if (err) callback(err)
-            helpers.consulBackup(data, override, (err,result) => {
-                if(err) callback(err)
-                console.log(result)
-            })
-        })
-    }else{
+    const {s3_bucket_name, path_to_file, override} = options
+    if(s3_bucket_name){
         const s3 = new AWS.S3({params:{Bucket: s3_bucket_name}})
-        s3.getObject({Bucket: s3_bucket_name, Key: file_name}, (err, data) => {
+        s3.getObject({Bucket: s3_bucket_name, Key: path_to_file}, (err, data) => {
           if (err) callback(err)
           helpers.consulBackup(data.Body, override, (err,result) => {
               if(err) callback(err)
               if(result) console.log(result)
           })
-
+        })
+    }else{
+        fs.readFile(path_to_file, 'utf8', (err, data)=>{
+            if (err) callback(err)
+            helpers.consulBackup(data, override, (err,result) => {
+                if(err) callback(err)
+                if(result) console.log(result)
+            })
         })
     }
     callback(null);
