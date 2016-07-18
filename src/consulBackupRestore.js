@@ -6,7 +6,7 @@ const helpers      = require('./helpers')
 const consul = require('consul')
 const async  = require('async')
 const AWS    = require('aws-sdk')
-
+const fs     = require('fs')
 
 function ConsulBackupRestore(options) {
     this.options = options || {};
@@ -24,24 +24,24 @@ ConsulBackupRestore.prototype.backup = function (options, callback) {
         if(err) callback(err)
     })
     console.log('backing up...');
+    const { prefix, s3_bucket_name, local } = options
     // Find all keys then iterate, results is array of keys
-    this.consulInstance.kv.keys(options.prefix, (err,keys) => {
+    this.consulInstance.kv.keys(prefix, (err,keys) => {
       if(err) throw err
       // map over array of keys
       async.map(keys, helpers.getKeyValue, (err, result) =>{
         if(err) throw err
 
-        console.log(options.prefix)
         const writeData        = helpers.parseKeys(result)
-        const backup_file_name = helpers.createFileName(options.prefix)
+        const backup_file_name = helpers.createFileName(prefix)
 
-        if(options.local === true || options.local === 'true'){
+        if(local){
             helpers.writeLocalFile(backup_file_name, writeData, (err, result) => {
                 if(err) callback(err)
                 console.log(result)
             })
         }else{
-            helpers.writeS3File(options.s3_bucket_name, backup_file_name, writeData, (err, result) =>{
+            helpers.writeS3File(s3_bucket_name, backup_file_name, writeData, (err, result) =>{
                 if(err) callback(err)
                 console.log(result)
             })
@@ -59,32 +59,26 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
     })
     console.log('restoring...');
 
-    //local
-  // fs.readFile(FILE_NAME, 'utf8', (err,data)=>{}
-  // --------------- s3
-  //Name of backup file
-
     const {s3_bucket_name, file_name, override} = options
-    const s3 = new AWS.S3({params:{Bucket: s3_bucket_name}})
-    s3.getObject({Bucket: s3_bucket_name, Key: file_name}, function(err, data) {
-      if (err) callback(err)
+    if(options.local){
+        fs.readFile(file_name, 'utf8', (err, data)=>{
+            if (err) callback(err)
+            helpers.consulBackup(data, override, (err,result) => {
+                if(err) callback(err)
+                console.log(result)
+            })
+        })
+    }else{
+        const s3 = new AWS.S3({params:{Bucket: s3_bucket_name}})
+        s3.getObject({Bucket: s3_bucket_name, Key: file_name}, (err, data) => {
+          if (err) callback(err)
+          helpers.consulBackup(data.Body, override, (err,result) => {
+              if(err) callback(err)
+              console.log(result)
+          })
 
-      let key_values = data.Body.toString('utf-8').split('\n')
-      if (key_values.last === undefined){
-          key_values.pop()
-        }
-      key_values.map((kv)=> {
-        const key = JSON.parse(kv).Key
-        const backupValue = JSON.parse(kv).Value
-
-        helpers.getConsulKey(key)
-          .then((consulValue)  => helpers.overrideKey(key,consulValue, override))
-          .then(()             => helpers.setConsulKeyValue(key,backupValue))
-          .then((restored_key) => console.log(`Key ${restored_key} was restored`))
-          .catch((e)           => callback(e))
-      })
-
-    })
+        })
+    }
     callback(null);
 }
 

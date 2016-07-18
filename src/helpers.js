@@ -3,7 +3,7 @@ const AWS    = require('aws-sdk')
 const fs     = require('fs')
 
 
-exports.getConsulKey = function (key){
+const getConsulKey = exports.getConsulKey = function (key){
   return new Promise((resolve, reject) => {
     consul.kv.get(key, (err, result) => {
       if(err) reject(err);
@@ -20,7 +20,7 @@ exports.getConsulKey = function (key){
 
 //added override flag to args so its clear that the function is dependent on it?
 //passed key so we can see which keys get overriden
-exports.overrideKey = function (key, consulValue, override_flag){
+const overrideKey = exports.overrideKey = function (key, consulValue, override_flag){
   return new Promise((resolve, reject) => {
     if(consulValue){
       if(override_flag){
@@ -34,7 +34,7 @@ exports.overrideKey = function (key, consulValue, override_flag){
   })
 }
 
-exports.setConsulKeyValue = function (key,backupValue){
+const setConsulKeyValue = exports.setConsulKeyValue = function (key,backupValue){
     return new Promise((resolve,reject) => {
       consul.kv.set(key,backupValue, (err, result) => {
         if (err) reject (err)
@@ -71,10 +71,10 @@ exports.parseOptions = function(function_call, options, callback){
       callback(Error('Incorrect Usage'))
   }
   // can backup/restore without prefix, this will back every key
-  if(!options.prefix){
-      options.prefix = ''
-      return options
-  }
+  if(!options.prefix) options.prefix = ''
+  if(options.local === 'true') options.local = true
+  return options
+
 }
 
 exports.createFileName = function(prefix){
@@ -109,4 +109,23 @@ exports.parseKeys = function (keys) {
     writeData += JSON.stringify(e) + '\n'
   })
   return writeData
+}
+
+
+exports.consulBackup = function (raw_data, override, callback) {
+
+       let key_values = raw_data.toString('utf-8').split('\n')
+       if (key_values.last === undefined){
+           key_values.pop()
+         }
+       key_values.map((kv)=> {
+         const key = JSON.parse(kv).Key
+         const backupValue = JSON.parse(kv).Value
+
+         getConsulKey(key)
+           .then((consulValue)  => overrideKey(key,consulValue, override))
+           .then(()             => setConsulKeyValue(key,backupValue))
+           .then((restored_key) => callback(null,`Key ${restored_key} was restored`))
+           .catch((e)           => callback(e))
+       })
 }
