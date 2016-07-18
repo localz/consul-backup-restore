@@ -1,5 +1,7 @@
 const consul = require('consul')()
 const AWS    = require('aws-sdk')
+const fs     = require('fs')
+
 
 exports.getConsulKey = function (key){
   return new Promise((resolve, reject) => {
@@ -18,10 +20,10 @@ exports.getConsulKey = function (key){
 
 //added override flag to args so its clear that the function is dependent on it?
 //passed key so we can see which keys get overriden
-exports.overrideKey = function (key, consulValue, OVERRIDE_FLAG){
+exports.overrideKey = function (key, consulValue, override_flag){
   return new Promise((resolve, reject) => {
     if(consulValue){
-      if(OVERRIDE_FLAG){
+      if(override_flag){
         resolve()
       }else{
         reject(`${key} was not restored (enable override)`)
@@ -50,15 +52,27 @@ exports.getKeyValue = function (key, callback){
   })
 }
 
-exports.parseOptions = function(options, callback){
+exports.parseOptions = function(function_call, options, callback){
+  if(function_call === 'restore'){
+    if(options.override === 'true') options.override = true
+    if(!options.override || (typeof options.override !== 'boolean')){
+      options.override = false
+    }
+    if(!options.file_name){
+      console.log(`No ${function_call} occured`)
+      console.log(`Usage: cbr.${function_call}({file_name:\'file_name\', s3_bucket_name:\'bucket_name\'}`)
+      callback(Error('Incorrect usage - file_name needed for restore'))
+    }
+  }
+
   if(!options.s3_bucket_name && (options.local === false || options.local === 'false' || !options.local) ){
-      console.log('No backup occured, no bucket_name found')
-      console.log('Usage: cbr.backup({prefix:\'prefixname\', s3_bucket_name:\'bucket_name\'}')
+      console.log(`No ${function_call} occured`)
+      console.log(`Usage: cbr.${function_call}({prefix:\'prefixname\', s3_bucket_name:\'bucket_name\'}`)
       callback(Error('Incorrect Usage'))
   }
-  // can back up without prefix, this will back every key
+  // can backup/restore without prefix, this will back every key
   if(!options.prefix){
-      options.prefx = ''
+      options.prefix = ''
       return options
   }
 }

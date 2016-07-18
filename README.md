@@ -33,7 +33,7 @@ local -> local in stead of s3. true or 'true'
 ### Restore
 ``` javascript
 cbr.restore(
-    {prefix: 'serviceName', overwrite: true},
+    {prefix: 'serviceName', overwrite: true, file_name:''},
     function(err) {
         if (err) throw err;
     }    
