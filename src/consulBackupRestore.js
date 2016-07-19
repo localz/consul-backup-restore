@@ -31,7 +31,9 @@ ConsulBackupRestore.prototype.backup = function (options, callback) {
       async.map(keys, helpers.getKeyValue, (err, result) =>{
         if(err) throw err
 
-        const writeData        = helpers.parseKeys(result)
+        const writeData        = helpers.parseKeys(result, (err) =>{
+            if(err) callback(err)
+        })
         const backup_file_name = helpers.createFileName(options.prefix)
 
         if(options.s3_bucket_name){

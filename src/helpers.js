@@ -95,8 +95,8 @@ exports.writeS3File = function (s3_bucket_name, backup_file_name, writeData, cal
       .send(function(err, writeData) { callback(err, writeData) });
 }
 
-exports.parseKeys = function (keys) {
-  if (keys.length === 0) return console.error('No keys found to backup!')
+exports.parseKeys = function (keys, cb) {
+  if (keys.length === 0) return cb(Error('No keys found to backup!'))
 
   var writeData = ''
   keys.map((e)=>{
