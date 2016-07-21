@@ -1,4 +1,4 @@
-'use strict';
+'use strict'
 
-var ConsulBackupRestore = require('./consulBackupRestore').ConsulBackupRestore;
-module.exports = ConsulBackupRestore;
+var ConsulBackupRestore = require('./consulBackupRestore').ConsulBackupRestore
+module.exports = ConsulBackupRestore
