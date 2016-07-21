@@ -43,6 +43,13 @@ const setConsulKeyValue = exports.setConsulKeyValue = function (key, backupValue
   })
 }
 
+function createFileName (prefix) {
+  const date = new Date()
+     // just added seconds to the end to avoid duplicates -> doesn't make too much logical sense though..
+  const dateExt = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}_${date.getSeconds()}`
+  return `consul_kv_backup_${prefix}_${dateExt}`
+}
+
 exports.parseOptions = function (functionCall, options, callback) {
   if (functionCall === 'restore') {
     if (options.override === 'true') options.override = true
@@ -57,15 +64,13 @@ exports.parseOptions = function (functionCall, options, callback) {
   }
 
   // can backup/restore without prefix, this will back every key
-  if (!options.prefix) options.prefix = ''
+  if (!options.prefix) {
+    options.prefix = ''
+  }
+  if (functionCall === 'backup' && !options.filePath) {
+    options.filePath = createFileName(options.prefix)
+  }
   return options
-}
-
-exports.createFileName = function (prefix) {
-  const date = new Date()
-     // just added seconds to the end to avoid duplicates -> doesn't make too much logical sense though..
-  const dateExt = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}_${date.getSeconds()}`
-  return `consul_kv_backup_${prefix}_${dateExt}`
 }
 
 exports.writeLocalFile = function (backupFileName, writeData, callback) {

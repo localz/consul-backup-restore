@@ -33,7 +33,7 @@ ConsulBackupRestore.prototype.backup = function (options, callback) {
       callback(err)
     }
     console.log(keyValues)
-    s3FileUtil.backup(keyValues, options.prefix, options.s3BucketName, (err) => {
+    s3FileUtil.backup(keyValues, options.prefix, options.s3BucketName, options.filePath, (err) => {
       if (err) {
         callback(err)
       }
