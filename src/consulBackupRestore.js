@@ -1,7 +1,4 @@
-// const overrideKey       = require('./helpers').overrideKey
-// const setConsulKeyValue = require('./helpers').setConsulKeyValue
-// const getConsulKey      = require('./helpers').getConsulKey
-const helpers = require('./helpers')
+const parseUtil = require('./parseUtil')
 const consulUtil = require('./consulUtil')
 const s3FileUtil = require('./s3FileUtil')
 
@@ -11,7 +8,7 @@ const fs = require('fs')
 
 function ConsulBackupRestore (options) {
   this.options = options || {}
-    // TODO: consul by default can take in a lot more items
+  // TODO: consul by default can take in a lot more items
   this.consulInstance = consul({
     host: options.host,
     port: options.port,
@@ -21,7 +18,7 @@ function ConsulBackupRestore (options) {
 
 ConsulBackupRestore.prototype.backup = function (options, callback) {
   // parse options & santizes
-  options = helpers.parseOptions('backup', options, (err) => {
+  options = parseUtil.parseOptions('backup', options, (err) => {
     if (err) {
       callback(err)
     }
@@ -43,26 +40,34 @@ ConsulBackupRestore.prototype.backup = function (options, callback) {
 }
 
 ConsulBackupRestore.prototype.restore = function (options, callback) {
-  options = helpers.parseOptions('restore', options, (err) => {
+  options = parseUtil.parseOptions('restore', options, (err) => {
     if (err) callback(err)
   })
   console.log('restoring...')
 
-  if (options.s3_bucket_name) {
-    const s3 = new AWS.S3({params: {Bucket: options.s3_bucket_name}})
-    s3.getObject({Bucket: options.s3_bucket_name, Key: options.path_to_file}, (err, data) => {
+  if (options.s3BucketName) {
+    const s3 = new AWS.S3({params: {Bucket: options.s3BucketName}})
+    s3.getObject({Bucket: options.s3BucketName, Key: options.filePath}, (err, data) => {
       if (err) callback(err)
-      helpers.consulBackup(data.Body, options.override, (err, result) => {
-        if (err) callback(err)
-        if (result) console.log(result)
+      consulUtil.restoreKeyValues(this.consulInstance, data.Body, options.override, (err, result) => {
+        if (err) {
+          callback(err)
+        }
+        if (result) {
+          console.log(result)
+        }
       })
     })
   } else {
-    fs.readFile(options.path_to_file, 'utf8', (err, data) => {
+    fs.readFile(options.filePath, 'utf8', (err, data) => {
       if (err) callback(err)
-      helpers.consulBackup(data, options.override, (err, result) => {
-        if (err) callback(err)
-        if (result) console.log(result)
+      consulUtil.restoreKeyValues(this.consulInstance, data, options.override, (err, result) => {
+        if (err) {
+          callback(err)
+        }
+        if (result) {
+          console.log(result)
+        }
       })
     })
   }
