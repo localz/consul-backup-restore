@@ -9,4 +9,6 @@ deploy:
     secure: aYWYeDHFdIJpiltPeGO78PzQub0hEMSPCqAeNEEfUora/p48uSdlWjXE82FZCF1tIchX2REk3Dipjfl4CHj3Q4mopMQTjlbOKfIKXC0UnzVaBKBeL6AhnyIP/LTeXmpqZsUhuss9yYNESA8pz4EgkpxZxY/mbxVEbjAfcCGYvHA+iSsevz9MbO7XI0UyjsfS4QFUFz10S5XMg9cFF/YWRY8Tb+cJrsVqc7GGIfMlFG09XU/xLDYp4L18i3sU9iBHAku7eHQFzR6A377DdeoT5F3QHFAFFkI7yuLWPQcfd8GlsKPUs48lBC3LAhKstW0oOtaUtzY7YCxs2WmgqWXch/snXYSj7VjSnEC/NmK2B6GFGdkBEMO0HV/tSA/FFrkE8dKIAY+feCbspdE3wDcs/4EXlVptPy+0gTB+HIWmSOMy6h669Xdhj5Wb8tHTvrCTG73jvi86Eh5Cag1U6G2/WO7eS62IsXeNgIP/fQzYi8zag8u74WLamRx9GrH8JYiqtRfpgUKded3iYH2O4pgkbY6Ouj6kPP9ihZ26BJJ/oI9PlTaXhEiocg/SVdCIeWoklwFwn7m6oqKq+hVmD3atxFvVtS09gH31Pw9gsrYv+6PrOrdveLh/Nqic6itPLxey3DuDdWXmuPkL6mnIztAKlC88XbNQIgjbrRKBDaPkBxA=
   on:
     tags: true
+    branch: master
+    node: '4.3'
     repo: localz/consul-backup-restore
