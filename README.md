@@ -31,7 +31,7 @@ Callbacks has an error argument and a result argument. The result argument will 
 
 Options
 * prefix : Consul prefix used to back up keys from consul. If left blank all key value pairs will be backed up.
-* s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name.
+* s3BucketName: If you wish to use AWS's s3 bucket, specify the buckets name.
 * filePath: Will override the backup file name with your own.
 
 ### Restore - cbr.restore([options], callback)
@@ -47,7 +47,7 @@ cbr.restore(
 Callbacks has an error argument and a result argument. The result will return an array of keys that were backed up.
 
 Options
-* s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name.
+* s3BucketName: If you wish to use AWS's s3 bucket, specify the buckets name.
 * filePath: name of the file you wish to restore from.
 * override: use true or 'true' to override existing keys & their values in consul.
 
