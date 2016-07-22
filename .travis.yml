@@ -5,8 +5,12 @@ node_js:
 - '4.3'
 services:
   - docker
-script:
+before_install:
+  - docker pull consul
   - docker run -d -p 8500:8500 -p 8600:53 -p 8400:8400 consul agent -dev -client 0.0.0.0 -advertise 127.0.0.1
+  - docker ps -a
+script:
+  - mocha
 deploy:
   provider: npm
   email: mg@localz.co
