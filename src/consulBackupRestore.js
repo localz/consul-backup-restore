@@ -50,7 +50,7 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
           callback(err)
         }
         if (result) {
-          console.log(result)
+          callback(null, result)
         }
       })
     })
@@ -62,7 +62,7 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
           callback(err)
         }
         if (result) {
-          console.log(result)
+          callback(null, result)
         }
       })
     })

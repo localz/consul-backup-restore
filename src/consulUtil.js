@@ -25,13 +25,10 @@ exports.getKeyValues = function (consulInstance, prefix, callback) {
 }
 
 exports.restoreKeyValues = function (consulInstance, rawData, override, callback) {
-  var keyValues = rawData.toString('utf-8').split('\n')
-  if (keyValues.last === undefined) {
-    keyValues.pop() // pop last value as its a newline
-  }
+  var keyValues = JSON.parse(rawData.toString('utf-8'))
   keyValues.map((kv) => {
-    const key = JSON.parse(kv).Key
-    const backupValue = JSON.parse(kv).Value
+    const key = kv.Key
+    const backupValue = kv.Value
 
     getConsulKey(key)
            .then((consulValue) => overrideKey(key, consulValue, override))
