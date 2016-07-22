@@ -1,7 +1,16 @@
 language: node_js
+sudo: required
 node_js:
 - '6'
 - '4.3'
+services:
+  - docker
+before_install:
+  - docker pull consul
+  - docker run -d -p 8500:8500 -p 8600:53 -p 8400:8400 consul agent -dev -client 0.0.0.0 -advertise 127.0.0.1
+  - docker ps -a
+script:
+  - mocha
 deploy:
   provider: npm
   email: mg@localz.co

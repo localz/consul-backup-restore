@@ -6,7 +6,7 @@ function writeLocalFile (backupFileName, writeData, callback) {
   fs.writeFile(backupFileName, writeData, (err) => {
     if (err) callback(err)
 
-    callback(null, `file saved as ${backupFileName}`)
+    callback(null, `${backupFileName}`)
   })
 }
 
@@ -23,20 +23,19 @@ exports.backup = function (keyValues, prefix, s3BucketName, filePath, callback) 
       callback(err)
     }
   })
-
   if (s3BucketName) {
     writeS3File(s3BucketName, filePath, writeData, (err, result) => {
       if (err) {
         callback(err)
       }
-      console.log(result)
+      callback(null, result)
     })
   } else {
     writeLocalFile(filePath, writeData, (err, result) => {
       if (err) {
         callback(err)
       }
-      console.log(result)
+      callback(null, result)
     })
   }
 }

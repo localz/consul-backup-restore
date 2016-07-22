@@ -25,20 +25,23 @@ exports.getKeyValues = function (consulInstance, prefix, callback) {
 }
 
 exports.restoreKeyValues = function (consulInstance, rawData, override, callback) {
-  var keyValues = rawData.toString('utf-8').split('\n')
-  if (keyValues.last === undefined) {
-    keyValues.pop() // pop last value as its a newline
-  }
-  keyValues.map((kv) => {
-    const key = JSON.parse(kv).Key
-    const backupValue = JSON.parse(kv).Value
+  var keyValues = JSON.parse(rawData.toString('utf-8'))
+
+  async.map(keyValues, setConsulAndCheckOverride.bind(override), (err, keys) => {
+    if (err) { callback(err) }
+    callback(null, keys)
+  })
+
+  function setConsulAndCheckOverride (kv, callback) {
+    const key = kv.Key
+    const backupValue = kv.Value
 
     getConsulKey(key)
-           .then((consulValue) => overrideKey(key, consulValue, override))
-           .then(() => setConsulKeyValue(key, backupValue))
-           .then((restoredKey) => callback(null, `Key ${restoredKey} was restored`))
-           .catch((e) => callback(e))
-  })
+      .then((consulValue) => overrideKey(key, consulValue, override))
+      .then((willSetKey) => setConsulKeyValue(willSetKey, key, backupValue))
+      .then((restoredKey) => callback(null, `${restoredKey}`))
+      .catch((e) => callback(e))
+  }
 
   function getConsulKey (key) {
     return new Promise((resolve, reject) => {
@@ -48,7 +51,7 @@ exports.restoreKeyValues = function (consulInstance, rawData, override, callback
         if (result) {
           resolve(JSON.stringify(result.Value))
         } else {
-          resolve(undefined)
+          resolve(null)
         }
       })
     })
@@ -60,23 +63,26 @@ exports.restoreKeyValues = function (consulInstance, rawData, override, callback
     return new Promise((resolve, reject) => {
       if (consulValue) {
         if (overrideFlag) {
-          resolve()
+          resolve(true)
         } else {
-          reject(`${key} was not restored (enable override)`)
+          resolve(false)
         }
       } else {
-        resolve()
+        resolve(true)
       }
     })
   }
 
-  function setConsulKeyValue (key, backupValue) {
+  function setConsulKeyValue (willSetKey, key, backupValue) {
     return new Promise((resolve, reject) => {
-      consulInstance.kv.set(key, backupValue, (err, result) => {
-        if (err) reject(err)
-
-        result ? resolve(key) : reject(Error(key + ' was not set'))
-      })
+      if (willSetKey) {
+        consulInstance.kv.set(key, backupValue, (err, result) => {
+          if (err) reject(err)
+          if (result) resolve(key)
+        })
+      } else {
+        reject()
+      }
     })
   }
 }
