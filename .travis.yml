@@ -1,7 +1,12 @@
 language: node_js
+sudo: required
 node_js:
 - '6'
 - '4.3'
+services:
+  - docker
+script:
+  - docker run -d -p 8500:8500 -p 8600:53 -p 8400:8400 consul agent -dev -client 0.0.0.0 -advertise 127.0.0.1
 deploy:
   provider: npm
   email: mg@localz.co
