@@ -1,7 +1,7 @@
 function createFileName (prefix) {
   const date = new Date()
-  // just added seconds to the end to avoid duplicates -> doesn't make too much logical sense though..
-  const dateExt = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}_${date.getSeconds()}`
+  const dateExt = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}` +
+                  `_${date.getHours()}_${date.getMinutes()}_${date.getSeconds()}`
   return `consul_kv_backup_${prefix}_${dateExt}`
 }
 

@@ -23,18 +23,15 @@ ConsulBackupRestore.prototype.backup = function (options, callback) {
       callback(err)
     }
   })
-  console.log('backing up...')
-
   consulUtil.getKeyValues(this.consulInstance, options.prefix, (err, keyValues) => {
     if (err) {
       callback(err)
     }
-    console.log(keyValues)
-    s3FileUtil.backup(keyValues, options.prefix, options.s3BucketName, options.filePath, (err) => {
+    s3FileUtil.backup(keyValues, options.prefix, options.s3BucketName, options.filePath, (err, result) => {
       if (err) {
         callback(err)
       }
-      callback(null)
+      callback(null, result)
     })
   })
 }
@@ -43,7 +40,6 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
   options = parseUtil.parseOptions('restore', options, (err) => {
     if (err) callback(err)
   })
-  console.log('restoring...')
 
   if (options.s3BucketName) {
     const s3 = new AWS.S3({params: {Bucket: options.s3BucketName}})
