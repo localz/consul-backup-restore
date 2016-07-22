@@ -14,9 +14,9 @@ exports.parseOptions = function (functionCall, options, callback) {
       options.override = false
     }
     if (!options.filePath) {
-      console.log(`No ${functionCall} occured`)
-      console.log(`Usage: cbr.${functionCall}({filePath:\'filePath\', s3BucketName:\'s3BucketName\'}`)
-      callback(Error('Incorrect usage - filePath needed for restore'))
+      var incorrectUsageString = `No ${functionCall} occured, see README for more details\n`
+      incorrectUsageString += `Usage: cbr.${functionCall}({filePath:\'filePath\', s3BucketName:\'s3BucketName\'}`
+      callback(Error(incorrectUsageString))
     }
   }
 

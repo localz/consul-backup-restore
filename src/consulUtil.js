@@ -26,16 +26,22 @@ exports.getKeyValues = function (consulInstance, prefix, callback) {
 
 exports.restoreKeyValues = function (consulInstance, rawData, override, callback) {
   var keyValues = JSON.parse(rawData.toString('utf-8'))
-  keyValues.map((kv) => {
+
+  async.map(keyValues, setConsulAndCheckOverride.bind(override), (err, kv) => {
+    if (err) { callback(err) }
+    callback(null, kv)
+  })
+
+  function setConsulAndCheckOverride (kv, callback) {
     const key = kv.Key
     const backupValue = kv.Value
 
     getConsulKey(key)
-           .then((consulValue) => overrideKey(key, consulValue, override))
-           .then(() => setConsulKeyValue(key, backupValue))
-           .then((restoredKey) => callback(null, `Key ${restoredKey} was restored`))
-           .catch((e) => callback(e))
-  })
+      .then((consulValue) => overrideKey(key, consulValue, override))
+      .then(() => setConsulKeyValue(key, backupValue))
+      .then((restoredKey) => callback(null, `${restoredKey}`))
+      .catch((e) => callback(e))
+  }
 
   function getConsulKey (key) {
     return new Promise((resolve, reject) => {
