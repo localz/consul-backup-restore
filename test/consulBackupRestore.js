@@ -8,9 +8,7 @@ var fs = require('fs')
 var mock = require('mock-fs')
 var axios = require('axios')
 
-var beforeSetConsulKeysAndValues = require('./consulTestUtil').beforeSetConsulKeysAndValues
-var key1Value = require('./consulTestUtil').key1Value
-var key2Value = require('./consulTestUtil').key2Value
+var consulTestUtil = require('./consulTestUtil')
 
 describe('consul-back-restore', function () {
   it('backup & restore functions should be accesible on cbr object', function () {
@@ -18,7 +16,7 @@ describe('consul-back-restore', function () {
     assert.isFunction(cbr.restore)
   })
   describe('cbr.backup({})', function () {
-    beforeSetConsulKeysAndValues()
+    consulTestUtil.beforeSetConsulKeysAndValues()
 
     it('should be able to backup locally', function (done) {
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
@@ -26,8 +24,8 @@ describe('consul-back-restore', function () {
         if (err) { done(err) }
         fs.readFile(result, 'utf8', (err, result) => {
           if (err) { done(err) }
-          var re1 = new RegExp(key1Value)
-          var re2 = new RegExp(key2Value)
+          var re1 = new RegExp(consulTestUtil.key1Value)
+          var re2 = new RegExp(consulTestUtil.key2Value)
           if (result.match(re1) && result.match(re2)) {
             done()
           } else {
@@ -39,29 +37,125 @@ describe('consul-back-restore', function () {
   })
 
   describe('cbr.restore({})', function () {
-    beforeSetConsulKeysAndValues()
+    consulTestUtil.beforeDeleteAllKeys()
 
     mock({
       '/test': {
-        'backup_file': '[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"test1","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"test2","CreateIndex":3379,"ModifyIndex":3379}]'
+        'backup_file': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]`
       }
     })
 
     it('should be able to restore locally', function (done) {
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
-      cbr.restore({filePath: '/test/backup_file', override: true}, function (err, result) {
-        if (err) done(err)
+      cbr.restore({filePath: '/test/backup_file'}, function (err, result) {
+        if (err) console.log(err)
+        assert.equal(result.length, 2)
         done()
       })
     })
 
-    after('the restored keys should be in consul', function (done) {
+    after('two keys should be restored to consul', function (done) {
       return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
         if (response.data.length === 2) {
           // console.log(decodeURIComponent(response.data[0].Value))
           var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
           var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-          if (recievedK1 === key1Value && recievedK2 === key2Value) {
+          if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
+            done()
+          }
+        }
+      })
+    })
+  })
+
+  describe('cbr.restore({}), with one key already existing (and not overwrite)', function () {
+    consulTestUtil.beforeSetOneConsulKeysAndValues()
+
+    mock({
+      '/test': {
+        'backup_file': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]` }
+    })
+
+    it('Should only restore one key when one already exists', function (done) {
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+      cbr.restore({filePath: '/test/backup_file'}, function (err, result) {
+        if (err) done(err)
+        assert.equal(result.length, 1) // should only return one key
+        done()
+      })
+    })
+
+    after('consul should have two correct keys', function (done) {
+      return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+        if (response.data.length === 2) {
+          // console.log(decodeURIComponent(response.data[0].Value))
+          var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+          var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+          if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
+            done()
+          }
+        }
+      })
+    })
+  })
+
+  describe('cbr.restore({override:true}), with one key already existing (and override)', function () {
+    consulTestUtil.beforeSetOneConsulKeysAndValues()
+
+    mock({
+      '/test': {
+        'backup_file': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]`
+      }
+    })
+
+    it('Should only restore one key when one already exists', function (done) {
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+      cbr.restore({filePath: '/test/backup_file', override: true}, function (err, result) {
+        if (err) done(err)
+        assert.equal(result.length, 2) // should return 2 keys
+        done()
+      })
+    })
+
+    after('consul should have two correct keys', function (done) {
+      return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+        if (response.data.length === 2) {
+          // console.log(decodeURIComponent(response.data[0].Value))
+          var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+          var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+          if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
+            done()
+          }
+        }
+      })
+    })
+  })
+
+  describe('cbr.restore({override:false}), should not restore with two prexising keys & override:false', function () {
+    consulTestUtil.beforeSetConsulKeysAndValues()
+
+    mock({
+      '/test': {
+        'backup_file': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]`
+      }
+    })
+
+    it('Should only restore one key when one already exists', function (done) {
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+      cbr.restore({filePath: '/test/backup_file', override: false}, function (err, result) {
+        if (err) done(err)
+        assert.equal(result.length, 0) // should return 0 keys
+        done()
+      })
+    })
+
+    after('consul should have two correct keys', function (done) {
+      return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+        if (response.data.length === 2) {
+          // console.log(decodeURIComponent(response.data[0].Value))
+          var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+          var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+          if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
             done()
           }
         }
