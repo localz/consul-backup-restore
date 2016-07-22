@@ -50,7 +50,8 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
           callback(err)
         }
         if (result) {
-          callback(null, result)
+          var blanksRemoved = result.filter(function (e) { return e })
+          callback(null, blanksRemoved)
         }
       })
     })
@@ -62,7 +63,8 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
           callback(err)
         }
         if (result) {
-          callback(null, result)
+          var blanksRemoved = result.filter(function (e) { return e })
+          callback(null, blanksRemoved)
         }
       })
     })

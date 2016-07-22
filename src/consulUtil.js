@@ -80,6 +80,8 @@ exports.restoreKeyValues = function (consulInstance, rawData, override, callback
           if (err) reject(err)
           if (result) resolve(key)
         })
+      } else {
+        reject()
       }
     })
   }
