@@ -2,7 +2,7 @@ var assert = require('chai').assert
 var ConsulBackupRestore = require('../src')
 var cbr = new ConsulBackupRestore({host: 'localhost', Port: 8500})
 var describe = require('mocha').describe
-// var after = require('mocha').after
+var after = require('mocha').after
 var it = require('mocha').it
 var fs = require('fs')
 
@@ -40,13 +40,13 @@ describe('consul-back-restore', function () {
     it('should be able to restore locally')
   })
 
-  // after('delete all local files created', function () {
-  //   (fs.readdirSync('./')).map((e) => {
-  //     if (e.match(/consul_kv_backup/)) {
-  //       fs.unlink(e, function (err, res) {
-  //         if (err) console.log(err)
-  //       })
-  //     }
-  //   })
-  // })
+  after('delete all local files created', function () {
+    (fs.readdirSync('./')).map((e) => {
+      if (e.match(/consul_kv_backup/)) {
+        fs.unlink(e, function (err, res) {
+          if (err) console.log(err)
+        })
+      }
+    })
+  })
 })

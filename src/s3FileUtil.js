@@ -23,7 +23,6 @@ exports.backup = function (keyValues, prefix, s3BucketName, filePath, callback) 
       callback(err)
     }
   })
-
   if (s3BucketName) {
     writeS3File(s3BucketName, filePath, writeData, (err, result) => {
       if (err) {

@@ -32,10 +32,5 @@ exports.parseOptions = function (functionCall, options, callback) {
 
 exports.parseKeys = function (keys, cb) {
   if (keys.length === 0) return cb(Error('No keys found to backup!'))
-
-  var writeData = ''
-  keys.map((e) => {
-    writeData += JSON.stringify(e) + '\n'
-  })
-  return writeData
+  return JSON.stringify(keys)
 }
