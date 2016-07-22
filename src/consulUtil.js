@@ -27,9 +27,9 @@ exports.getKeyValues = function (consulInstance, prefix, callback) {
 exports.restoreKeyValues = function (consulInstance, rawData, override, callback) {
   var keyValues = JSON.parse(rawData.toString('utf-8'))
 
-  async.map(keyValues, setConsulAndCheckOverride.bind(override), (err, kv) => {
+  async.map(keyValues, setConsulAndCheckOverride.bind(override), (err, keys) => {
     if (err) { callback(err) }
-    callback(null, kv)
+    callback(null, keys)
   })
 
   function setConsulAndCheckOverride (kv, callback) {
