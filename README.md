@@ -44,7 +44,7 @@ cbr.restore(
     }    
 )
 ```
-Callbacks has an error argument and a result argument. The result will return keys as they are backed up.
+Callbacks has an error argument and a result argument. The result will return an array of keys that were backed up.
 
 Options
 * s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name.
