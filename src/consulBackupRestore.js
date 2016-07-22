@@ -67,7 +67,6 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
       })
     })
   }
-  callback(null)
 }
 
 exports.ConsulBackupRestore = ConsulBackupRestore
