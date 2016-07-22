@@ -4,6 +4,7 @@ var key1Value = 'test1'
 var key2Value = 'test2'
 exports.key1Value = key1Value
 exports.key2Value = key2Value
+exports.deleteAllKeys = deleteAllKeys
 
 function deleteAllKeys () {
   return axios.delete('http://localhost:8500/v1/kv/?recurse')

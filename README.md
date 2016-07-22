@@ -14,36 +14,39 @@ npm install consul-backup-restore
 ### Initialise
 ``` javascript
 var ConsulBackupRestore = require('consul-backup-restore');
-var cbr = new ConsulBackupRestore({Host: 'localhost', Port:8500});
+var cbr = new ConsulBackupRestore({host: 'localhost', port:8500});
 ```
 
 ### Backup - cbr.backup([options], callback)
 ``` javascript
 cbr.backup(
-    {prefix: 'serviceName'},
-    function(err) {
+    {prefix: 'serviceName', filePath:''},
+    function(err, result) {
         if (err) throw err;
+        console.log(result)
     }
 )
 ```
-Callbacks only argument is error
+Callbacks has an error argument and a result argument. The result argument will either be the name of the file, or the s3 data dump.
 
 Options
-* prefix : Consul prefix used to back up keys from consul. If left blank all key value pairs will be backed up
-* s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name
+* prefix : Consul prefix used to back up keys from consul. If left blank all key value pairs will be backed up.
+* s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name.
+* filePath: Will override the backup file name with your own.
 
 ### Restore - cbr.restore([options], callback)
 ``` javascript
 cbr.restore(
-    {prefix: 'serviceName', overwrite: true, path_to_file:''},
-    function(err) {
+    {prefix: 'serviceName', override: true, filePath:'path/to/myFile'},
+    function(err, result) {
         if (err) throw err;
+        console.log(result)
     }    
 )
 ```
-Callbacks only argument is error
+Callbacks has an error argument and a result argument. The result will return keys as they are backed up.
 
 Options
-* s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name
-* path_to_file: name of the file you wish to restore from
-* override: use true or 'true' to override existing keys & their values in consul
+* s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name.
+* filePath: name of the file you wish to restore from.
+* override: use true or 'true' to override existing keys & their values in consul.

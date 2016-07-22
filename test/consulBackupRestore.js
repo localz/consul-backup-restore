@@ -1,14 +1,17 @@
 var assert = require('chai').assert
 var ConsulBackupRestore = require('../src')
-var cbr = new ConsulBackupRestore({host: 'localhost', Port: 8500})
+var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
 var describe = require('mocha').describe
 var after = require('mocha').after
+// var before = require('mocha').before
 var it = require('mocha').it
 var fs = require('fs')
+// var mock = require('mock-fs')
 
-var beforeSetConsulKeysAndValues = require('./consulUtil').beforeSetConsulKeysAndValues
-var key1Value = require('./consulUtil').key1Value
-var key2Value = require('./consulUtil').key2Value
+var beforeSetConsulKeysAndValues = require('./consulTestUtil').beforeSetConsulKeysAndValues
+// var deleteAllKeys = require('./consulTestUtil').deleteAllKeys
+var key1Value = require('./consulTestUtil').key1Value
+var key2Value = require('./consulTestUtil').key2Value
 
 describe('consul-back-restore', function () {
   it('backup & restore functions should be accesible on cbr object', function () {
@@ -19,7 +22,7 @@ describe('consul-back-restore', function () {
     beforeSetConsulKeysAndValues()
 
     it('should be able to backup locally', function (done) {
-      var cbr = new ConsulBackupRestore({Host: 'localhost', Port: 8500})
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
       cbr.backup({}, function (err, result) {
         if (err) { done(err) }
         fs.readFile(result, 'utf8', (err, result) => {
@@ -37,7 +40,26 @@ describe('consul-back-restore', function () {
   })
 
   describe('cbr.restore({})', function () {
-    it('should be able to restore locally')
+    // mock({
+    //   '/test': {
+    //     'backup_file': '[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"test1","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"test2","CreateIndex":3379,"ModifyIndex":3379}]'
+    //   }
+    // })
+    // before('delete all consul keys', function (done) {
+    //   deleteAllKeys().then(function () { done() })
+    // })
+    //
+    // it('should be able to restore locally', function (done) {
+    //   var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+    //   cbr.restore({filePath: '/test/backup_file'}, done)
+    // })
+    //
+    // after('the restored keys should be in consul', function () {
+    //   // TODO: find keys and check their values
+    //   // getKey1().then(function(){
+    //   //   done()
+    //   // })
+    // })
   })
 
   after('delete all local files created', function () {
