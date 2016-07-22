@@ -50,3 +50,11 @@ Options
 * s3_bucket_name: If you wish to use AWS's s3 bucket, specify the buckets name.
 * filePath: name of the file you wish to restore from.
 * override: use true or 'true' to override existing keys & their values in consul.
+
+
+### Local
+To run the tests locally you must have a consul instance running. We do this through docker.
+```
+docker run -d -p 8500:8500 -p 8600:53 -p 8400:8400 consul agent -dev -client 0.0.0.0 -advertise 127.0.0.1
+```
+From then you can run your tests using mocha
