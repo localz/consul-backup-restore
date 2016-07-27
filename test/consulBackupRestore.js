@@ -55,20 +55,18 @@ describe('consul-back-restore', function () {
       cbr.restore({filePath: '/test/cbr_key1_key2'}, function (err, result) {
         if (err) console.log(err)
         assert.equal(result.length, 2)
-        done()
-      })
-    })
 
-    after('two keys should be restored to consul', function (done) {
-      return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
-        if (response.data.length === 2) {
-          // console.log(decodeURIComponent(response.data[0].Value))
-          var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
-          var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-          if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
-            done()
+        // two keys should be to consul
+        return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+          if (response.data.length === 2) {
+            // console.log(decodeURIComponent(response.data[0].Value))
+            var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+            var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+            if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
+              done()
+            }
           }
-        }
+        })
       })
     })
   })
@@ -78,23 +76,21 @@ describe('consul-back-restore', function () {
 
     it('Should only restore one key when one already exists', function (done) {
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
-      cbr.restore({filePath: '/test/cbr_key1_key2'}, function (err, result) {
+      cbr.restore({filePath: '/test/cbr_changed_key2'}, function (err, result) {
         if (err) done(err)
         assert.equal(result.length, 1) // should only return one key
-        done()
-      })
-    })
 
-    after('consul should have two correct keys', function (done) {
-      return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
-        if (response.data.length === 2) {
-          // receivedK1 should not be changedValue should be still original
-          var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
-          var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-          if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
-            done()
+        // consul should have one original key and one new key
+        return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+          if (response.data.length === 2) {
+            // receivedK1 should not be changedValue should be still original
+            var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+            var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+            if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
+              done()
+            }
           }
-        }
+        })
       })
     })
   })
@@ -107,20 +103,18 @@ describe('consul-back-restore', function () {
       cbr.restore({filePath: '/test/cbr_changed_key2', override: true}, function (err, result) {
         if (err) done(err)
         assert.equal(result.length, 2) // should return 2 keys
-        done()
-      })
-    })
 
-    after('consul should have two correct keys', function (done) {
-      return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
-        if (response.data.length === 2) {
-          // recievedK1 should be changedValue
-          var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
-          var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-          if (recievedK1 === changedValue && recievedK2 === consulTestUtil.key2Value) {
-            done()
+        // consul should have one overwriten value and one old value
+        return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+          if (response.data.length === 2) {
+            // recievedK1 should be changedValue
+            var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+            var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+            if (recievedK1 === changedValue && recievedK2 === consulTestUtil.key2Value) {
+              done()
+            }
           }
-        }
+        })
       })
     })
   })
@@ -133,31 +127,29 @@ describe('consul-back-restore', function () {
       cbr.restore({filePath: '/test/cbr_newKey1_newKey2', override: false}, function (err, result) {
         if (err) done(err)
         assert.equal(result.length, 0) // should return 0 keys
-        done()
+
+        // Consul should have two of the original keys
+        return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+          if (response.data.length === 2) {
+            // console.log(decodeURIComponent(response.data[0].Value))
+            var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+            var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+            if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
+              done()
+            }
+          }
+        })
       })
     })
 
-    after('consul should have two correct keys', function (done) {
-      return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
-        if (response.data.length === 2) {
-          // console.log(decodeURIComponent(response.data[0].Value))
-          var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
-          var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-          if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
-            done()
-          }
+    after('delete all local files created', function () {
+      (fs.readdirSync('./')).map((e) => {
+        if (e.match(/consul_kv_backup/)) {
+          fs.unlink(e, function (err, res) {
+            if (err) console.log(err)
+          })
         }
       })
-    })
-  })
-
-  after('delete all local files created', function () {
-    (fs.readdirSync('./')).map((e) => {
-      if (e.match(/consul_kv_backup/)) {
-        fs.unlink(e, function (err, res) {
-          if (err) console.log(err)
-        })
-      }
     })
   })
 })

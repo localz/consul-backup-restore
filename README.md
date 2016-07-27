@@ -20,7 +20,7 @@ var cbr = new ConsulBackupRestore({host: 'localhost', port:8500});
 ### Backup - cbr.backup([options], callback)
 ``` javascript
 cbr.backup(
-    {prefix: 'serviceName', filePath:''},
+    {prefix: 'serviceName', filePath:'path/to/myFile'},
     function(err, result) {
         if (err) throw err;
         console.log(result)
@@ -44,7 +44,7 @@ cbr.restore(
     }    
 )
 ```
-Callbacks has an error argument and a result argument. The result will return an array of keys that were backed up.
+Callbacks has an error argument and a result argument. The result will return an array of keys that were backed up. For example a key that already exists in consul will only be returned if the override is set to true.
 
 Options
 * s3BucketName: If you wish to use AWS's s3 bucket, specify the buckets name.
