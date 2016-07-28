@@ -37,11 +37,10 @@ describe('consul-back-restore', function () {
           if (err) { done(err) }
           var re1 = new RegExp(consulTestUtil.key1Value)
           var re2 = new RegExp(consulTestUtil.key2Value)
-          if (result.match(re1) && result.match(re2)) {
-            done()
-          } else {
-            done(new Error('did not backup correctly check key store'))
-          }
+
+          assert.isNotNull(result.match(re1))
+          assert.isNotNull(result.match(re2))
+          done()
         })
       })
     })
@@ -62,9 +61,9 @@ describe('consul-back-restore', function () {
             // console.log(decodeURIComponent(response.data[0].Value))
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
-              done()
-            }
+            assert.equal(recievedK1, consulTestUtil.key1Value)
+            assert.equal(recievedK2, consulTestUtil.key2Value)
+            done()
           }
         })
       })
@@ -86,9 +85,9 @@ describe('consul-back-restore', function () {
             // receivedK1 should not be changedValue should be still original
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
-              done()
-            }
+            assert.equal(recievedK1, consulTestUtil.key1Value)
+            assert.equal(recievedK2, consulTestUtil.key2Value)
+            done()
           }
         })
       })
@@ -110,9 +109,9 @@ describe('consul-back-restore', function () {
             // recievedK1 should be changedValue
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            if (recievedK1 === changedValue && recievedK2 === consulTestUtil.key2Value) {
-              done()
-            }
+            assert.equal(recievedK1, changedValue)
+            assert.equal(recievedK2, consulTestUtil.key2Value)
+            done()
           }
         })
       })
@@ -134,9 +133,9 @@ describe('consul-back-restore', function () {
             // console.log(decodeURIComponent(response.data[0].Value))
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            if (recievedK1 === consulTestUtil.key1Value && recievedK2 === consulTestUtil.key2Value) {
-              done()
-            }
+            assert.equal(recievedK1, consulTestUtil.key1Value)
+            assert.equal(recievedK2, consulTestUtil.key2Value)
+            done()
           }
         })
       })
