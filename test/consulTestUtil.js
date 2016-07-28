@@ -10,14 +10,10 @@ function deleteAllKeys () {
   return axios.delete('http://localhost:8500/v1/kv/?recurse')
 }
 function addKey1 () {
-  return axios.put('http://localhost:8500/v1/kv/web/key1?', {
-    value: key1Value
-  })
+  return axios.put('http://localhost:8500/v1/kv/web/key1?', key1Value)
 }
 function addKey2 () {
-  return axios.put('http://localhost:8500/v1/kv/web/key2?', {
-    value: key2Value
-  })
+  return axios.put('http://localhost:8500/v1/kv/web/key2?', key2Value)
 }
 
 exports.beforeSetConsulKeysAndValues = function () {
@@ -28,5 +24,20 @@ exports.beforeSetConsulKeysAndValues = function () {
         addKey2()
       ])
     }).then(function () { done() })
+  })
+}
+
+exports.beforeSetOneConsulKeysAndValues = function () {
+  before('set keys in consul', function (done) {
+    return deleteAllKeys().then(function () {
+      return axios.all([
+        addKey1()
+      ])
+    }).then(function () { done() })
+  })
+}
+exports.beforeDeleteAllKeys = function () {
+  before('set keys in consul', function (done) {
+    return deleteAllKeys().then(function () { done() })
   })
 }
