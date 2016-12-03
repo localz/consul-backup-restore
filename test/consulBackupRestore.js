@@ -2,8 +2,11 @@ var chai = require('chai')
 var ConsulBackupRestore = require('../src')
 var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
 var describe = require('mocha').describe
+var beforeEach = require('mocha').beforeEach
+var afterEach = require('mocha').afterEach
 var after = require('mocha').after
 var it = require('mocha').it
+var AWS = require('aws-sdk')
 var fs = require('fs')
 var mock = require('mock-fs')
 var axios = require('axios')
@@ -53,7 +56,16 @@ describe('consul-back-restore', function () {
   })
 
   describe('cbr.restore({})', function () {
+    var sandbox
+
     consulTestUtil.beforeDeleteAllKeys()
+
+    beforeEach(function () {
+      sandbox = sinon.sandbox.create()
+    })
+    afterEach(function () {
+      sandbox.restore()
+    })
 
     it('should be able to restore locally', function (done) {
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
@@ -75,8 +87,21 @@ describe('consul-back-restore', function () {
       })
     })
 
-    it('should not attempt to restore when file not found', function (done) {
-      sinon.spy(consulUtil, 'restoreKeyValues')
+    it('should not attempt to restore when s3 data not found', function (done) {
+      var getObject = AWS.S3.prototype.getObject = sandbox.stub()
+      getObject.yields('error-text', null)
+      sandbox.spy(consulUtil, 'restoreKeyValues')
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+      cbr.restore({s3BucketName: 'http://some-bucket.s3.amazonaws.com', filePath: '/some/file/path'}, function (err, result) {
+        assert.equal(err, 'error-text')
+        getObject.should.have.been.called
+        consulUtil.restoreKeyValues.should.have.not.been.called
+        done()
+      })
+    })
+
+    it('should not attempt to restore when local file not found', function (done) {
+      sandbox.spy(consulUtil, 'restoreKeyValues')
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
       cbr.restore({filePath: '/test/keynotfound'}, function (err, result) {
         assert.equal(err.code, 'ENOENT')
