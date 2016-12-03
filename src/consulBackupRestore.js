@@ -58,15 +58,17 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
   } else {
     fs.readFile(options.filePath, 'utf8', (err, data) => {
       if (err) callback(err)
-      consulUtil.restoreKeyValues(this.consulInstance, data, options.override, (err, result) => {
-        if (err) {
-          callback(err)
-        }
-        if (result) {
-          var blanksRemoved = result.filter(function (e) { return e })
-          callback(null, blanksRemoved)
-        }
-      })
+      if (data) {
+        consulUtil.restoreKeyValues(this.consulInstance, data, options.override, (err, result) => {
+          if (err) {
+            callback(err)
+          }
+          if (result) {
+            var blanksRemoved = result.filter(function (e) { return e })
+            callback(null, blanksRemoved)
+          }
+        })
+      }
     })
   }
 }

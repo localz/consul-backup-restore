@@ -1,4 +1,4 @@
-var assert = require('chai').assert
+var chai = require('chai')
 var ConsulBackupRestore = require('../src')
 var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
 var describe = require('mocha').describe
@@ -7,8 +7,14 @@ var it = require('mocha').it
 var fs = require('fs')
 var mock = require('mock-fs')
 var axios = require('axios')
-
+var sinon = require('sinon')
+var sinonChai = require('sinon-chai')
+var assert = chai.assert
 var consulTestUtil = require('./consulTestUtil')
+var consulUtil = require('../src/consulUtil')
+
+chai.should()
+chai.use(sinonChai)
 
 var changedValue = 'changedValue'
 var newKey1 = 'newKey1'
@@ -66,6 +72,17 @@ describe('consul-back-restore', function () {
             done()
           }
         })
+      })
+    })
+
+    it('should not attempt to restore when file not found', function (done) {
+      sinon.spy(consulUtil, 'restoreKeyValues')
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+      cbr.restore({filePath: '/test/keynotfound'}, function (err, result) {
+        assert.equal(err.code, 'ENOENT')
+        assert.isUndefined(result)
+        consulUtil.restoreKeyValues.should.have.not.been.called
+        done()
       })
     })
   })
