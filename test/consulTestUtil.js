@@ -2,8 +2,10 @@ var axios = require('axios')
 var before = require('mocha').before
 var key1Value = 'test1'
 var key2Value = 'test2'
+var key3Value = 'test3'
 exports.key1Value = key1Value
 exports.key2Value = key2Value
+exports.key3Value = key3Value
 exports.deleteAllKeys = deleteAllKeys
 
 function deleteAllKeys () {

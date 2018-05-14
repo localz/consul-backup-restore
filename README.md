@@ -8,6 +8,7 @@ It works with Amazon's S3 service or by default locally.
 ```
 npm install consul-backup-restore
 ```
+Note you need node version 4 to run this. I have tried upgrading node but its a pain
 
 ## API
 

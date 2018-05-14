@@ -25,6 +25,7 @@ var newKey2 = 'newKey2'
 mock({
   '/test': {
     'cbr_key1_key2': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]`,
+    'cbr_key1_key2_key3': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379},{"LockIndex":0,"Key":"notweb/key1","Flags":0,"Value":"${consulTestUtil.key3Value}","CreateIndex":3380,"ModifyIndex":3380}]`,
     'cbr_changed_key2': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${changedValue}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]`,
     'cbr_newKey1_newKey2': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${newKey1}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${newKey2}","CreateIndex":3379,"ModifyIndex":3379}]`
   }
@@ -180,6 +181,26 @@ describe('consul-back-restore', function () {
             done()
           }
         })
+      })
+    })
+
+    it('Should only restore keys defined by prefix', function (done) {
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+      cbr.restore({filePath: '/test/cbr_key1_key2_key3', prefix: 'web', override: false}, function (err, result) {
+        if (err) done(err)
+
+        // Consul should have two of the original keys
+        return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+          if (response.data.length === 2) {
+            // console.log(decodeURIComponent(response.data[0].Value))
+            var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+            var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+            assert.equal(recievedK1, consulTestUtil.key1Value)
+            assert.equal(recievedK2, consulTestUtil.key2Value)
+            done()
+          }
+        })
+          .catch((err) => console.log(err))
       })
     })
 

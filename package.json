@@ -30,7 +30,8 @@
   "dependencies": {
     "async": "^2.0.0",
     "aws-sdk": "^2.4.7",
-    "consul": "^0.25.0"
+    "consul": "^0.25.0",
+    "eslint-plugin-node": "^6.0.1"
   },
   "devDependencies": {
     "axios": "^0.13.1",

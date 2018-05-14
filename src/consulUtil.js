@@ -24,8 +24,13 @@ exports.getKeyValues = function (consulInstance, prefix, callback) {
   }
 }
 
-exports.restoreKeyValues = function (consulInstance, rawData, override, callback) {
+exports.restoreKeyValues = function (consulInstance, rawData, prefix, override, callback) {
   var keyValues = JSON.parse(rawData.toString('utf-8'))
+  if (prefix) {
+    keyValues = keyValues.filter(row => {
+      return !!row.Key.match(new RegExp(`^${prefix}`))
+    })
+  }
 
   async.map(keyValues, setConsulAndCheckOverride.bind(override), (err, keys) => {
     if (err) { callback(err) }
