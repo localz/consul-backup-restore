@@ -110,3 +110,13 @@ test('[s3] backs up all keys to s3', (done) => {
   })
 })
 
+// delete test files
+//afterAll( () => {
+//(fs.readdirSync('./')).map((e) => {
+  //if (e.match(/^test./)) {
+    //fs.unlink(e, function (err, res) {
+      //if (err) console.log(err)
+    //})
+  //}
+//})
+//})

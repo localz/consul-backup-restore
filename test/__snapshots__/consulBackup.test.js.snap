@@ -37,16 +37,3 @@ Array [
   },
 ]
 `;
-
-exports[`only backs up a specific key 2`] = `
-Array [
-  Object {
-    "Key": "bucket1/key_1",
-    "Value": "test_1",
-  },
-  Object {
-    "Key": "bucket1/key_2",
-    "Value": "test_2",
-  },
-]
-`;
