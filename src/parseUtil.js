@@ -31,6 +31,6 @@ exports.parseOptions = function (functionCall, options, callback) {
 }
 
 exports.parseKeys = function (keys, cb) {
-  if (keys.length === 0) return cb(Error('No keys found to backup!'))
+  if (keys.length === 0) console.log('WARN: There were no keys found to backup')
   return JSON.stringify(keys)
 }

@@ -24,10 +24,10 @@ var newKey1 = 'newKey1'
 var newKey2 = 'newKey2'
 mock({
   '/test': {
-    'cbr_key1_key2': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]`,
-    'cbr_key1_key2_key3': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${consulTestUtil.key1Value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379},{"LockIndex":0,"Key":"notweb/key1","Flags":0,"Value":"${consulTestUtil.key3Value}","CreateIndex":3380,"ModifyIndex":3380}]`,
-    'cbr_changed_key2': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${changedValue}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${consulTestUtil.key2Value}","CreateIndex":3379,"ModifyIndex":3379}]`,
-    'cbr_newKey1_newKey2': `[{"LockIndex":0,"Key":"web/key1","Flags":0,"Value":"${newKey1}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"web/key2","Flags":0,"Value":"${newKey2}","CreateIndex":3379,"ModifyIndex":3379}]`
+    'cbr_consulTestUtil.key1_consulTestUtil.key2': `[{"LockIndex":0,"Key":"${consulTestUtil.key1.key}","Flags":0,"Value":"${consulTestUtil.key1.value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"${consulTestUtil.key1.key}","Flags":0,"Value":"${consulTestUtil.key2.value}","CreateIndex":3379,"ModifyIndex":3379}]`,
+    'cbr_consulTestUtil.key1_consulTestUtil.key2_consulTestUtil.key3': `[{"LockIndex":0,"Key":"${consulTestUtil.key1.key}","Flags":0,"Value":"${consulTestUtil.key1.value}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"${consulTestUtil.key2.key}","Flags":0,"Value":"${consulTestUtil.key2.value}","CreateIndex":3379,"ModifyIndex":3379},{"LockIndex":0,"Key":"${consulTestUtil.key3.key}","Flags":0,"Value":"${consulTestUtil.key3.value}","CreateIndex":3380,"ModifyIndex":3380}]`,
+    'cbr_changed_consulTestUtil.key2': `[{"LockIndex":0,"Key":"${consulTestUtil.key1.key}","Flags":0,"Value":"${changedValue}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"${consulTestUtil.key2.key}","Flags":0,"Value":"${consulTestUtil.key2.value}","CreateIndex":3379,"ModifyIndex":3379}]`,
+    'cbr_newKey1_newKey2': `[{"LockIndex":0,"Key":"${consulTestUtil.key1.key}","Flags":0,"Value":"${newKey1}","CreateIndex":3378,"ModifyIndex":3378},{"LockIndex":0,"Key":"${consulTestUtil.key2.key}","Flags":0,"Value":"${newKey2}","CreateIndex":3379,"ModifyIndex":3379}]`
   }
 })
 
@@ -45,8 +45,8 @@ describe('consul-back-restore', function () {
         if (err) { done(err) }
         fs.readFile(result, 'utf8', (err, result) => {
           if (err) { done(err) }
-          var re1 = new RegExp(consulTestUtil.key1Value)
-          var re2 = new RegExp(consulTestUtil.key2Value)
+          var re1 = new RegExp(consulTestUtil.key1.value)
+          var re2 = new RegExp(consulTestUtil.key2.value)
 
           assert.isNotNull(result.match(re1))
           assert.isNotNull(result.match(re2))
@@ -70,7 +70,7 @@ describe('consul-back-restore', function () {
 
     it('should be able to restore locally', function (done) {
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
-      cbr.restore({filePath: '/test/cbr_key1_key2'}, function (err, result) {
+      cbr.restore({filePath: '/test/cbr_consulTestUtil.key1_consulTestUtil.key2'}, function (err, result) {
         if (err) console.log(err)
         assert.equal(result.length, 2)
 
@@ -80,8 +80,8 @@ describe('consul-back-restore', function () {
             // console.log(decodeURIComponent(response.data[0].Value))
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            assert.equal(recievedK1, consulTestUtil.key1Value)
-            assert.equal(recievedK2, consulTestUtil.key2Value)
+            assert.equal(recievedK1, consulTestUtil.key1.value)
+            assert.equal(recievedK2, consulTestUtil.key2.value)
             done()
           }
         })
@@ -118,7 +118,7 @@ describe('consul-back-restore', function () {
 
     it('Should only restore one key when one already exists', function (done) {
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
-      cbr.restore({filePath: '/test/cbr_changed_key2'}, function (err, result) {
+      cbr.restore({filePath: '/test/cbr_changed_consulTestUtil.key2'}, function (err, result) {
         if (err) done(err)
         assert.equal(result.length, 1) // should only return one key
 
@@ -128,8 +128,8 @@ describe('consul-back-restore', function () {
             // receivedK1 should not be changedValue should be still original
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            assert.equal(recievedK1, consulTestUtil.key1Value)
-            assert.equal(recievedK2, consulTestUtil.key2Value)
+            assert.equal(recievedK1, consulTestUtil.key1.value)
+            assert.equal(recievedK2, consulTestUtil.key2.value)
             done()
           }
         })
@@ -142,7 +142,7 @@ describe('consul-back-restore', function () {
 
     it('Should only restore one key when one already exists', function (done) {
       var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
-      cbr.restore({filePath: '/test/cbr_changed_key2', override: true}, function (err, result) {
+      cbr.restore({filePath: '/test/cbr_changed_consulTestUtil.key2', override: true}, function (err, result) {
         if (err) done(err)
         assert.equal(result.length, 2) // should return 2 keys
 
@@ -153,7 +153,7 @@ describe('consul-back-restore', function () {
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
             assert.equal(recievedK1, changedValue)
-            assert.equal(recievedK2, consulTestUtil.key2Value)
+            assert.equal(recievedK2, consulTestUtil.key2.value)
             done()
           }
         })
@@ -176,31 +176,11 @@ describe('consul-back-restore', function () {
             // console.log(decodeURIComponent(response.data[0].Value))
             var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
             var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            assert.equal(recievedK1, consulTestUtil.key1Value)
-            assert.equal(recievedK2, consulTestUtil.key2Value)
+            assert.equal(recievedK1, consulTestUtil.key1.value)
+            assert.equal(recievedK2, consulTestUtil.key2.value)
             done()
           }
         })
-      })
-    })
-
-    it('Should only restore keys defined by prefix', function (done) {
-      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
-      cbr.restore({filePath: '/test/cbr_key1_key2_key3', prefix: 'web', override: false}, function (err, result) {
-        if (err) done(err)
-
-        // Consul should have two of the original keys
-        return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
-          if (response.data.length === 2) {
-            // console.log(decodeURIComponent(response.data[0].Value))
-            var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
-            var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
-            assert.equal(recievedK1, consulTestUtil.key1Value)
-            assert.equal(recievedK2, consulTestUtil.key2Value)
-            done()
-          }
-        })
-          .catch((err) => console.log(err))
       })
     })
 
@@ -212,6 +192,38 @@ describe('consul-back-restore', function () {
           })
         }
       })
+    })
+  })
+  describe('cbr.restore({prefix: any}), should only restore a given prefix', function () {
+    beforeEach(() => {
+      return consulTestUtil.deleteAllKeys()
+    })
+
+    it('Should only restore keys defined by prefix', function (done) {
+      var cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+      cbr.restore({filePath: '/test/cbr_consulTestUtil.key1_consulTestUtil.key2_consulTestUtil.key3', prefix: 'web', override: false}, function (err, result) {
+        if (err) done(err)
+        assert.equal(result.length, 2) // the two keys we expected to back up
+        console.log(result, consulTestUtil.key1.value)
+        assert.equal(result[0], consulTestUtil.key1.value)
+        assert.equal(result[1], consulTestUtil.key2.value)
+
+        // Consul should have two of the original keys
+        return axios.get('http://localhost:8500/v1/kv/?recurse').then(function (response) {
+          if (response.data.length === 2) {
+            // console.log(decodeURIComponent(response.data[0].Value))
+            var recievedK1 = (new Buffer(response.data[0].Value, 'base64')).toString('utf8')
+            var recievedK2 = (new Buffer(response.data[1].Value, 'base64')).toString('utf8')
+            assert.equal(recievedK1, consulTestUtil.key1.value)
+            assert.equal(recievedK2, consulTestUtil.key2.value)
+            done()
+          }
+        })
+          .catch((err) => console.log(err))
+      })
+    })
+    afterEach(() => {
+      return consulTestUtil.deleteAllKeys()
     })
   })
 })

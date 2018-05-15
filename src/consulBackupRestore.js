@@ -3,7 +3,7 @@ const consulUtil = require('./consulUtil')
 const s3FileUtil = require('./s3FileUtil')
 
 const consul = require('consul')
-const AWS = require('aws-sdk')
+const s3 = require('./s3Util').s3
 const fs = require('fs')
 
 function ConsulBackupRestore (options) {
@@ -43,7 +43,6 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
 
   const prefix = options.prefix ? options.prefix : null
   if (options.s3BucketName) {
-    const s3 = new AWS.S3({params: {Bucket: options.s3BucketName}})
     s3.getObject({Bucket: options.s3BucketName, Key: options.filePath}, (err, data) => {
       if (err) callback(err)
       else {
@@ -60,7 +59,9 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
     })
   } else {
     fs.readFile(options.filePath, 'utf8', (err, data) => {
-      if (err) callback(err)
+      if (err) {
+        callback(err)
+      }
       if (data) {
         consulUtil.restoreKeyValues(this.consulInstance, data, prefix, options.override, (err, result) => {
           if (err) {

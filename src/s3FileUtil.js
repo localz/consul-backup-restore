@@ -1,4 +1,4 @@
-const AWS = require('aws-sdk')
+const s3 = require('./s3Util').s3
 const fs = require('fs')
 const parseUtil = require('./parseUtil')
 
@@ -11,10 +11,7 @@ function writeLocalFile (backupFileName, writeData, callback) {
 }
 
 function writeS3File (s3BucketName, backupFileName, writeData, callback) {
-  var s3 = new AWS.S3({params: {Bucket: s3BucketName}})
-  s3.upload({Body: writeData, Key: backupFileName})
-      .on('httpUploadProgress', function (evt) { console.log(evt) })
-      .send(function (err, writeData) { callback(err, writeData) })
+  s3.putObject({Body: writeData, Key: backupFileName, Bucket: s3BucketName}, callback)
 }
 
 exports.backup = function (keyValues, prefix, s3BucketName, filePath, callback) {
