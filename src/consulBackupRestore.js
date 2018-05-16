@@ -3,7 +3,7 @@ const consulUtil = require('./consulUtil')
 const s3FileUtil = require('./s3FileUtil')
 
 const consul = require('consul')
-const s3 = require('./s3Util').s3
+const { s3 } = require('./s3Util')
 const fs = require('fs')
 
 function ConsulBackupRestore (options) {
@@ -46,10 +46,8 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
             if (err) {
               return callback(err)
             }
-            if (result) {
-              var blanksRemoved = result.filter(function (e) { return e })
-              callback(null, blanksRemoved)
-            }
+            var blanksRemoved = result.filter((e) => e !== null)
+            callback(null, blanksRemoved)
           })
         }
       })
@@ -63,10 +61,8 @@ ConsulBackupRestore.prototype.restore = function (options, callback) {
             if (err) {
               return callback(err)
             }
-            if (result) {
-              var blanksRemoved = result.filter(function (e) { return e })
-              callback(null, blanksRemoved)
-            }
+            var blanksRemoved = result.filter((e) => e !== null)
+            callback(null, blanksRemoved)
           })
         }
       })

@@ -66,10 +66,10 @@ test('[s3] only backs up a specific key to s3', (done) => {
     else {
       // should have correct keys and values
       const body = JSON.parse(recievedOpts.Body)
-      expect(body[0].Key).toEqual(consulUtil.keys[0].key)
-      expect(body[0].Value).toEqual(consulUtil.keys[0].value)
-      expect(body[1].Key).toEqual(consulUtil.keys[1].key)
-      expect(body[1].Value).toEqual(consulUtil.keys[1].value)
+      body.forEach((value, i) => {
+        expect(value.Key).toEqual(consulUtil.keys[i].key)
+        expect(value.Value).toEqual(consulUtil.keys[i].value)
+      })
       expect(body.length).toEqual(2)
       expect(recievedOpts.Bucket).toEqual('testBucket')
       done()
@@ -91,16 +91,10 @@ test('[s3] backs up all keys to s3', (done) => {
     else {
       // should have correct keys and values
       const body = JSON.parse(recievedOpts.Body)
-      expect(body[0].Key).toEqual(consulUtil.keys[0].key)
-      expect(body[0].Value).toEqual(consulUtil.keys[0].value)
-      expect(body[1].Key).toEqual(consulUtil.keys[1].key)
-      expect(body[1].Value).toEqual(consulUtil.keys[1].value)
-      expect(body[2].Key).toEqual(consulUtil.keys[2].key)
-      expect(body[2].Value).toEqual(consulUtil.keys[2].value)
-      expect(body[3].Key).toEqual(consulUtil.keys[3].key)
-      expect(body[3].Value).toEqual(consulUtil.keys[3].value)
-      expect(body[4].Key).toEqual(consulUtil.keys[4].key)
-      expect(body[4].Value).toEqual(consulUtil.keys[4].value)
+      body.forEach((value, i) => {
+        expect(value.Key).toEqual(consulUtil.keys[i].key)
+        expect(value.Value).toEqual(consulUtil.keys[i].value)
+      })
       expect(body.length).toEqual(5)
       expect(recievedOpts.Bucket).toEqual('testBucket')
       done()
@@ -113,7 +107,7 @@ afterAll(() => {
   (fs.readdirSync('./')).map((e) => {
     if (e.match(/^localtest.delete./)) {
       fs.unlink(e, function (err, res) {
-        if (err) console.log(err)
+        if (err) throw (err)
       })
     }
   })

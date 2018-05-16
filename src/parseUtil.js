@@ -1,3 +1,5 @@
+const {get} = require('lodash')
+
 function createFileName (prefix) {
   const date = new Date()
   const dateExt = `${date.getFullYear()}_${date.getMonth()}_${date.getDate()}` +
@@ -31,6 +33,6 @@ exports.parseOptions = function (functionCall, options, callback) {
 }
 
 exports.parseKeys = function (keys, cb) {
-  if (keys.length === 0) console.log('WARN: There were no keys found to backup')
+  if (get(keys.length, 0) === 0) console.log('WARN: There were no keys found to backup')
   return JSON.stringify(keys)
 }

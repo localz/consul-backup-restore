@@ -49,7 +49,7 @@ Options
 * s3BucketName: If you wish to use AWS's s3 bucket, specify the buckets name.
 * filePath: name of the file you wish to restore from.
 * override: use true or 'true' to override existing keys & their values in consul.
-* prefix: if you specify a prefix, only keys witht that prefix are restored eg `service1`
+* prefix: if you specify a prefix, only keys with that prefix are restored eg `service1`
 
 
 ### Local

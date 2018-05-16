@@ -28,7 +28,7 @@ exports.restoreKeyValues = function (consulInstance, rawData, prefix, override, 
   var keyValues = JSON.parse(rawData.toString('utf-8'))
   if (prefix) {
     keyValues = keyValues.filter(row => {
-      return !!row.Key.match(new RegExp(`^${prefix}`))
+      return Boolean(row.Key.match(new RegExp(`^${prefix}`)))
     })
   }
 

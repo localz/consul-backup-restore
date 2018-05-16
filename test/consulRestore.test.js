@@ -33,6 +33,10 @@ test('can restore all keys', (done) => {
     // need to check consul for keys
     consulUtil.getKeys()
       .then((res) => {
+        res.data.forEach((item, i) => {
+          expect(item.Key).toEqual(consulUtil.keys[i].key)
+          expect(item.Value).toEqual(Buffer.from(consulUtil.keys[i].value).toString('base64'))
+        })
         expect(res.data.length).toEqual(5)
         done()
       })
@@ -53,6 +57,10 @@ test('can restore specific prefix', (done) => {
     // need to check consul for keys
     consulUtil.getKeys()
       .then((res) => {
+        res.data.forEach((item, i) => {
+          expect(item.Key).toEqual(consulUtil.keys[i].key)
+          expect(item.Value).toEqual(Buffer.from(consulUtil.keys[i].value).toString('base64'))
+        })
         expect(res.data.length).toEqual(2)
         done()
       })
@@ -191,8 +199,8 @@ test('Fails to back up if filePath is empty', (done) => {
   cbr.restore({
     filePath: '', prefix: ''
   }, (err, res) => {
-    expect(err).toEqual(new Error(`No restore occured, file path was not found\nUsage: cbr.restore({filePath:'filePath', s3BucketName:'s3BucketName'})`))
-    done(res)
+    expect(err.message).toEqual(`No restore occured, file path was not found\nUsage: cbr.restore({filePath:'filePath', s3BucketName:'s3BucketName'})`)
+    done()
   })
 })
 
@@ -201,7 +209,7 @@ test('Fails to back up if filePath doesn\'t exist', (done) => {
   cbr.restore({
     filePath: 'this_file_def_doesnt_exist', prefix: ''
   }, (err, res) => {
-    expect(err).toEqual(new Error(`ENOENT, no such file or directory 'this_file_def_doesnt_exist'`))
-    done(res)
+    expect(err.message).toEqual(`ENOENT, no such file or directory 'this_file_def_doesnt_exist'`)
+    done()
   })
 })

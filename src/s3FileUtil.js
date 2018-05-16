@@ -1,11 +1,11 @@
-const s3 = require('./s3Util').s3
+const { s3 } = require('./s3Util')
 const fs = require('fs')
 const parseUtil = require('./parseUtil')
 
 function writeLocalFile (backupFileName, writeData, callback) {
   fs.writeFile(backupFileName, writeData, (err) => {
     if (err) return callback(err)
-    return callback(null, `${backupFileName}`)
+    return callback(null, backupFileName)
   })
 }
 
