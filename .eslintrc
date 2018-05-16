@@ -2,6 +2,10 @@
     "extends": "standard",
     "plugins": [
         "standard",
-        "promise"
-    ]
+        "promise",
+        "jest"
+    ],
+    "env": {
+    "jest/globals": true
+  }
 }

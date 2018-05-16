@@ -32,10 +32,7 @@ exports.restoreKeyValues = function (consulInstance, rawData, prefix, override, 
     })
   }
 
-  async.map(keyValues, setConsulAndCheckOverride.bind(override), (err, keys) => {
-    if (err) { callback(err) }
-    callback(null, keys)
-  })
+  async.map(keyValues, setConsulAndCheckOverride.bind(override), callback)
 
   function setConsulAndCheckOverride (kv, callback) {
     const key = kv.Key
@@ -86,7 +83,7 @@ exports.restoreKeyValues = function (consulInstance, rawData, prefix, override, 
           if (result) resolve(key)
         })
       } else {
-        reject()
+        reject(new Error('set key not set'))
       }
     })
   }

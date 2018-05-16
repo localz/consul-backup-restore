@@ -14,9 +14,9 @@ exports.parseOptions = function (functionCall, options, callback) {
       options.override = false
     }
     if (!options.filePath) {
-      var incorrectUsageString = `No ${functionCall} occured, see README for more details\n`
-      incorrectUsageString += `Usage: cbr.${functionCall}({filePath:\'filePath\', s3BucketName:\'s3BucketName\'}`
-      callback(Error(incorrectUsageString))
+      var incorrectUsageString = `No ${functionCall} occured, file path was not found\n`
+      incorrectUsageString += `Usage: cbr.${functionCall}({filePath:'filePath', s3BucketName:'s3BucketName'})`
+      return callback(Error(incorrectUsageString))
     }
   }
 
@@ -27,7 +27,7 @@ exports.parseOptions = function (functionCall, options, callback) {
   if (functionCall === 'backup' && !options.filePath) {
     options.filePath = createFileName(options.prefix)
   }
-  return options
+  return callback(null, options)
 }
 
 exports.parseKeys = function (keys, cb) {

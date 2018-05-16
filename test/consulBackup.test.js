@@ -1,20 +1,18 @@
 const fs = require('fs')
-const AWS = require('../src/s3Util.js')
 const s3 = require('../src/s3Util.js').s3
-const mock = require('mock-fs')
 const ConsulBackupRestore = require('../src')
 const consulUtil = require('./consulTestUtil')
 
-beforeEach( () => {
+beforeEach(() => {
   return consulUtil.addKeys()
 })
 
 test('can backup all keys', (done) => {
   const cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
   cbr.backup({
-    prefix: '', filePath: 'test.backup_all_keys'
+    prefix: '', filePath: 'localtest.delete.backup_all_keys'
   }, (err, result) => {
-    if(err) done(err)
+    if (err) done(err)
     else {
       // open file and check it
       const backedUp = fs.readFileSync(result, 'utf8')
@@ -34,9 +32,9 @@ test('can backup all keys', (done) => {
 test('only backs up a specific key', (done) => {
   const cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
   cbr.backup({
-    prefix: 'bucket1', filePath: 'test.backup_prefix'
+    prefix: 'bucket1', filePath: 'localtest.delete.backup_prefix'
   }, (err, result) => {
-    if(err) done(err)
+    if (err) done(err)
     else {
       // open file and check it
       const backedUp = fs.readFileSync(result, 'utf8')
@@ -56,15 +54,15 @@ test('only backs up a specific key', (done) => {
 
 test('[s3] only backs up a specific key to s3', (done) => {
   let recievedOpts
-  const putObject = s3.putObject = jest.fn().mockImplementation = (opts, cb) => {
+  s3.putObject = jest.fn().mockImplementation = (opts, cb) => {
     recievedOpts = opts
-    cb(null, {data:{eId:'123'}})
+    cb(null, {data: {eId: '123'}})
   }
   const cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
   cbr.backup({
     prefix: 'bucket1', s3BucketName: 'testBucket'
   }, (err, result) => {
-    if(err) done(err)
+    if (err) done(err)
     else {
       // should have correct keys and values
       const body = JSON.parse(recievedOpts.Body)
@@ -81,15 +79,15 @@ test('[s3] only backs up a specific key to s3', (done) => {
 
 test('[s3] backs up all keys to s3', (done) => {
   let recievedOpts
-  const putObject = s3.putObject = jest.fn().mockImplementation = (opts, cb) => {
+  s3.putObject = jest.fn().mockImplementation = (opts, cb) => {
     recievedOpts = opts
-    cb(null, {data:{eId:'123'}})
+    cb(null, {data: {eId: '123'}})
   }
   const cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
   cbr.backup({
     prefix: '', s3BucketName: 'testBucket'
   }, (err, result) => {
-    if(err) done(err)
+    if (err) done(err)
     else {
       // should have correct keys and values
       const body = JSON.parse(recievedOpts.Body)
@@ -111,12 +109,12 @@ test('[s3] backs up all keys to s3', (done) => {
 })
 
 // delete test files
-//afterAll( () => {
-//(fs.readdirSync('./')).map((e) => {
-  //if (e.match(/^test./)) {
-    //fs.unlink(e, function (err, res) {
-      //if (err) console.log(err)
-    //})
-  //}
-//})
-//})
+afterAll(() => {
+  (fs.readdirSync('./')).map((e) => {
+    if (e.match(/^localtest.delete./)) {
+      fs.unlink(e, function (err, res) {
+        if (err) console.log(err)
+      })
+    }
+  })
+})

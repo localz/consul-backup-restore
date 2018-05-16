@@ -4,9 +4,8 @@ const parseUtil = require('./parseUtil')
 
 function writeLocalFile (backupFileName, writeData, callback) {
   fs.writeFile(backupFileName, writeData, (err) => {
-    if (err) callback(err)
-
-    callback(null, `${backupFileName}`)
+    if (err) return callback(err)
+    return callback(null, `${backupFileName}`)
   })
 }
 
@@ -15,24 +14,10 @@ function writeS3File (s3BucketName, backupFileName, writeData, callback) {
 }
 
 exports.backup = function (keyValues, prefix, s3BucketName, filePath, callback) {
-  const writeData = parseUtil.parseKeys(keyValues, (err) => {
-    if (err) {
-      callback(err)
-    }
-  })
+  const writeData = parseUtil.parseKeys(keyValues, callback)
   if (s3BucketName) {
-    writeS3File(s3BucketName, filePath, writeData, (err, result) => {
-      if (err) {
-        callback(err)
-      }
-      callback(null, result)
-    })
+    writeS3File(s3BucketName, filePath, writeData, callback)
   } else {
-    writeLocalFile(filePath, writeData, (err, result) => {
-      if (err) {
-        callback(err)
-      }
-      callback(null, result)
-    })
+    writeLocalFile(filePath, writeData, callback)
   }
 }
