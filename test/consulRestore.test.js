@@ -153,6 +153,10 @@ test('[s3] can restore all keys', (done) => {
     // need to check consul for keys
     consulUtil.getKeys()
       .then((res) => {
+        res.data.forEach((item, i) => {
+          expect(item.Key).toEqual(consulUtil.keys[i].key)
+          expect(item.Value).toEqual(Buffer.from(consulUtil.keys[i].value).toString('base64'))
+        })
         expect(res.data.length).toEqual(5)
         done()
       })
@@ -183,9 +187,11 @@ test('[s3] can restore specific prefix', (done) => {
     // need to check consul for keys
     consulUtil.getKeys()
       .then((res) => {
+        res.data.forEach((item, i) => {
+          expect(item.Key).toEqual(consulUtil.keys[i].key)
+          expect(item.Value).toEqual(Buffer.from(consulUtil.keys[i].value).toString('base64'))
+        })
         expect(res.data.length).toEqual(2)
-        expect(res.data[0].Key).toEqual('bucket1/key_1')
-        expect(res.data[1].Key).toEqual('bucket1/key_2')
         done()
       })
       .catch((err) => {
