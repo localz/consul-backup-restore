@@ -1,4 +1,5 @@
 # consul-backup-restore
+[![Build Status](https://travis-ci.org/localz/consul-backup-restore.svg?branch=master)](https://travis-ci.org/localz/consul-backup-restore)
 consul-backup-restore is a way of easily restoring and backing up key value pairs from consul.
 It works with Amazon's S3 service or by default locally.
 
