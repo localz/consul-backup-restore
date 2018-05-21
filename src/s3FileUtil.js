@@ -1,41 +1,23 @@
-const AWS = require('aws-sdk')
+const { s3 } = require('./s3Util')
 const fs = require('fs')
 const parseUtil = require('./parseUtil')
 
 function writeLocalFile (backupFileName, writeData, callback) {
   fs.writeFile(backupFileName, writeData, (err) => {
-    if (err) callback(err)
-
-    callback(null, `${backupFileName}`)
+    if (err) return callback(err)
+    return callback(null, backupFileName)
   })
 }
 
 function writeS3File (s3BucketName, backupFileName, writeData, callback) {
-  var s3 = new AWS.S3({params: {Bucket: s3BucketName}})
-  s3.upload({Body: writeData, Key: backupFileName})
-      .on('httpUploadProgress', function (evt) { console.log(evt) })
-      .send(function (err, writeData) { callback(err, writeData) })
+  s3.putObject({Body: writeData, Key: backupFileName, Bucket: s3BucketName}, callback)
 }
 
 exports.backup = function (keyValues, prefix, s3BucketName, filePath, callback) {
-  const writeData = parseUtil.parseKeys(keyValues, (err) => {
-    if (err) {
-      callback(err)
-    }
-  })
+  const writeData = parseUtil.parseKeys(keyValues, callback)
   if (s3BucketName) {
-    writeS3File(s3BucketName, filePath, writeData, (err, result) => {
-      if (err) {
-        callback(err)
-      }
-      callback(null, result)
-    })
+    writeS3File(s3BucketName, filePath, writeData, callback)
   } else {
-    writeLocalFile(filePath, writeData, (err, result) => {
-      if (err) {
-        callback(err)
-      }
-      callback(null, result)
-    })
+    writeLocalFile(filePath, writeData, callback)
   }
 }

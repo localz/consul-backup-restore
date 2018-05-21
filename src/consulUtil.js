@@ -24,13 +24,15 @@ exports.getKeyValues = function (consulInstance, prefix, callback) {
   }
 }
 
-exports.restoreKeyValues = function (consulInstance, rawData, override, callback) {
+exports.restoreKeyValues = function (consulInstance, rawData, prefix, override, callback) {
   var keyValues = JSON.parse(rawData.toString('utf-8'))
+  if (prefix) {
+    keyValues = keyValues.filter(row => {
+      return Boolean(row.Key.match(new RegExp(`^${prefix}`)))
+    })
+  }
 
-  async.map(keyValues, setConsulAndCheckOverride.bind(override), (err, keys) => {
-    if (err) { callback(err) }
-    callback(null, keys)
-  })
+  async.map(keyValues, setConsulAndCheckOverride.bind(override), callback)
 
   function setConsulAndCheckOverride (kv, callback) {
     const key = kv.Key
@@ -81,7 +83,7 @@ exports.restoreKeyValues = function (consulInstance, rawData, override, callback
           if (result) resolve(key)
         })
       } else {
-        reject()
+        reject(new Error('set key not set'))
       }
     })
   }

@@ -1,0 +1,39 @@
+// Jest Snapshot v1, https://goo.gl/fbAQLP
+
+exports[`can backup all keys 1`] = `
+Array [
+  Object {
+    "Key": "bucket1/key_1",
+    "Value": "test_1",
+  },
+  Object {
+    "Key": "bucket1/key_2",
+    "Value": "test_2",
+  },
+  Object {
+    "Key": "bucket2/key_3",
+    "Value": "test_3",
+  },
+  Object {
+    "Key": "bucket2/key_4",
+    "Value": "test_4",
+  },
+  Object {
+    "Key": "bucket3/key_5",
+    "Value": "test_5",
+  },
+]
+`;
+
+exports[`only backs up a specific key 1`] = `
+Array [
+  Object {
+    "Key": "bucket1/key_1",
+    "Value": "test_1",
+  },
+  Object {
+    "Key": "bucket1/key_2",
+    "Value": "test_2",
+  },
+]
+`;
