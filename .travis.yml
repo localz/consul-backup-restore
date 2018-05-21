@@ -18,5 +18,4 @@ deploy:
   on:
     tags: true
     branch: master
-    node: '4.3'
     repo: localz/consul-backup-restore
