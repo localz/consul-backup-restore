@@ -83,7 +83,8 @@ exports.restoreKeyValues = function (consulInstance, rawData, prefix, override, 
           if (result) resolve(key)
         })
       } else {
-        reject(new Error('set key not set'))
+        // we don't set but don't return an error
+        resolve(key)
       }
     })
   }

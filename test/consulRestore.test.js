@@ -129,6 +129,33 @@ describe('Overwrite setting', () => {
         })
     })
   })
+  test('will not overwrite existing from given prefix', async (done) => {
+    await consulUtil.addKeys()
+    const cbr = new ConsulBackupRestore({host: 'localhost', port: 8500})
+
+    cbr.restore({
+      filePath: '/mock/newKeys.test', prefix: 'bucket1', override: false
+    }, (err, res) => {
+      if (err) {
+        done(err)
+      }
+      // need to check consul for keys
+      consulUtil.getKeys()
+        .then((res) => {
+          expect(res.data.length).toEqual(5)
+          // only bucket1 keys are replaced
+          expect(res.data[0].Value).toEqual(Buffer.from(consulUtil.keys[0].value).toString('base64'))
+          expect(res.data[1].Value).toEqual(Buffer.from(consulUtil.keys[1].value).toString('base64'))
+          expect(res.data[2].Value).toEqual(Buffer.from(consulUtil.keys[2].value).toString('base64'))
+          expect(res.data[3].Value).toEqual(Buffer.from(consulUtil.keys[3].value).toString('base64'))
+          expect(res.data[4].Value).toEqual(Buffer.from(consulUtil.keys[4].value).toString('base64'))
+          done()
+        })
+        .catch((err) => {
+          done(err)
+        })
+    })
+  })
 })
 
 test('[s3] can restore all keys', (done) => {
