@@ -1,3 +1,5 @@
+# DECOMMISSIONED
+
 # consul-backup-restore
 [![Build Status](https://travis-ci.org/localz/consul-backup-restore.svg?branch=master)](https://travis-ci.org/localz/consul-backup-restore)
 consul-backup-restore is a way of easily restoring and backing up key value pairs from consul.
